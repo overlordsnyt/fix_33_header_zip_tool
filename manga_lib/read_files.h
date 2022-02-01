@@ -16,9 +16,8 @@ public:
     FileSelector();
     ~FileSelector();
 
-    std::list<std::filesystem::directory_entry> listPathFiles(const std::string_view& path, const bool recurFlag,
-                                         const short selType = FILE | FOLDER, const std::wstring& wildcard = L"");
-
+    std::list<std::filesystem::directory_entry> listPathFiles(const std::wstring_view& path, const bool recurFlag,
+                                                              const short selType = FILE | FOLDER, const std::wstring& wildcard = L"");
 };
 
 #endif //FIX_33ZIP_READ_FILES_H

@@ -2,7 +2,11 @@
 #include "read_files.h"
 
 #include <iostream>
+#include <ranges>
+
 static bool match(wchar_t const* needle, wchar_t const* haystack);
+static std::list<std::wstring_view> splitWildcardInput(wchar_t token, const std::wstring& wildcardMultiple);
+
 namespace fs=std::filesystem;
 
 FileSelector::FileSelector() {
@@ -13,10 +17,10 @@ FileSelector::~FileSelector() {
 
 }
 
-std::list<fs::directory_entry> FileSelector::listPathFiles(const std::string_view& path, const bool recurFlag, const short selType,
-                                                   const std::wstring& wildcard) {
+std::list<fs::directory_entry> FileSelector::listPathFiles(const std::wstring_view& path, const bool recurFlag, const short selType,
+                                                           const std::wstring& wildcard) {
 
-    std::cout << path << std::endl;
+    std::wcout << path << std::endl;
     const fs::path searchRootPath{path};
     std::list<fs::directory_entry> entryList{};
     if (recurFlag)
@@ -27,20 +31,63 @@ std::list<fs::directory_entry> FileSelector::listPathFiles(const std::string_vie
             entryList.push_back(dir_entry);
 
     if (!(selType&FILE))
-        entryList.remove_if([](fs::directory_entry entry) {
+        entryList.remove_if([](const fs::directory_entry& entry) {
             return entry.is_regular_file();
         });
     if (!(selType&FOLDER))
-        entryList.remove_if([](fs::directory_entry entry){
+        entryList.remove_if([](const fs::directory_entry& entry){
            return entry.is_directory();
         });
-    if (!wildcard.empty())
-        entryList.remove_if([&](fs::directory_entry entry) {
-            return !match(wildcard.data(), entry.path().filename().wstring().data());
+    if (!wildcard.empty()){
+        std::list<std::wstring_view> wildcardList=splitWildcardInput(L'|',wildcard);
+
+        entryList.remove_if([&](const fs::directory_entry& entry) {
+//            return !match(wildcard.data(), entry.path().filename().wstring().data());
+            const std::wstring filename=entry.path().filename().wstring();
+            bool flag=true;
+            for(std::wstring_view wildcardItem:wildcardList){
+                if (match(wildcardItem.data(),filename.data()))
+                    flag = false;
+            }
+            return flag;
         });
+    }
+
     return entryList;
 }
 
+static void trimString(wchar_t*& beginPtr,wchar_t* endPtr);
+
+std::list<std::wstring_view> splitWildcardInput(wchar_t token, const std::wstring& wildcardMultiple) {
+    std::list<std::wstring_view> wildcardList{};
+    wchar_t* wildcardPtr = static_cast<wchar_t*>(malloc(sizeof(wchar_t)*(wildcardMultiple.size()+1)));
+    memset(wildcardPtr,0, sizeof(wchar_t)*(wildcardMultiple.size()+1));
+//    wchar_t* wildcardPtr= const_cast<wchar_t*>(wildcardMultiple.data());
+    wildcardMultiple.copy(wildcardPtr, wildcardMultiple.size());
+    wchar_t* startPtr = wildcardPtr;
+    wchar_t* endPtr = wildcardPtr + wildcardMultiple.size();
+    wchar_t* splitPtr = startPtr;
+    while ((splitPtr = wcschr(wildcardPtr, token)) != nullptr) {
+        *splitPtr = L'\0';
+        //trim string
+        trimString(startPtr,splitPtr);
+        wildcardList.emplace_back(startPtr);
+        startPtr = splitPtr + 1;
+    }
+    trimString(startPtr,endPtr);
+    wildcardList.emplace_back(startPtr);
+//    free(wildcardPtr);
+    return wildcardList;
+}
+
+void trimString(wchar_t*& beginPtr,wchar_t* endPtr){
+    while(*(endPtr - 1) == L' ')
+        *(--endPtr) = L'\0';
+    while(*(beginPtr)==L' ')
+        ++beginPtr;
+}
+
+// https://stackoverflow.com/questions/3300419/file-name-matching-with-wildcard
 bool match(wchar_t const* needle, wchar_t const* haystack) {
     for (; *needle != '\0'; ++needle) {
         switch (*needle) {
