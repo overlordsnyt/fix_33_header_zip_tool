@@ -9,15 +9,18 @@
 #include <string>
 #include <filesystem>
 
+typedef std::list<std::filesystem::directory_entry> dir_entry_list;
+
 
 class FileSelector {
-public:
-    enum SEL_TYPE { FILE = 1, FOLDER = 1 << 1 };
+private:
     FileSelector();
     ~FileSelector();
+public:
+    enum SEL_TYPE { FILE = 1, FOLDER = 1 << 1 };
 
-    std::list<std::filesystem::directory_entry> listPathFiles(const std::wstring_view& path, const bool recurFlag,
-                                                              const short selType = FILE | FOLDER, const std::wstring& wildcard = L"");
+    static dir_entry_list listPathFiles(const std::wstring_view& path, const bool recurFlag = false,
+                                                                     const short selType = FILE, const std::wstring& wildcard = L"");
 };
 
 #endif //FIX_33ZIP_READ_FILES_H

@@ -1,28 +1,17 @@
 
 #include "read_files.h"
 
-#include <iostream>
-#include <ranges>
-
 static bool match(wchar_t const* needle, wchar_t const* haystack);
 static std::list<std::wstring_view> splitWildcardInput(wchar_t token, const std::wstring& wildcardMultiple);
 
 namespace fs=std::filesystem;
 
-FileSelector::FileSelector() {
+static wchar_t* wildcardPtr;
 
-}
-
-FileSelector::~FileSelector() {
-
-}
-
-std::list<fs::directory_entry> FileSelector::listPathFiles(const std::wstring_view& path, const bool recurFlag, const short selType,
+dir_entry_list FileSelector::listPathFiles(const std::wstring_view& path, const bool recurFlag, const short selType,
                                                            const std::wstring& wildcard) {
-
-    std::wcout << path << std::endl;
     const fs::path searchRootPath{path};
-    std::list<fs::directory_entry> entryList{};
+    dir_entry_list entryList{};
     if (recurFlag)
         for (const fs::directory_entry& dir_entry: fs::recursive_directory_iterator(searchRootPath))
             entryList.push_back(dir_entry);
@@ -42,7 +31,6 @@ std::list<fs::directory_entry> FileSelector::listPathFiles(const std::wstring_vi
         std::list<std::wstring_view> wildcardList=splitWildcardInput(L'|',wildcard);
 
         entryList.remove_if([&](const fs::directory_entry& entry) {
-//            return !match(wildcard.data(), entry.path().filename().wstring().data());
             const std::wstring filename=entry.path().filename().wstring();
             bool flag=true;
             for(std::wstring_view wildcardItem:wildcardList){
@@ -51,6 +39,10 @@ std::list<fs::directory_entry> FileSelector::listPathFiles(const std::wstring_vi
             }
             return flag;
         });
+
+        std::destroy(wildcardList.begin(), wildcardList.end());
+        wildcardList.clear();
+        free(wildcardPtr);
     }
 
     return entryList;
@@ -60,7 +52,7 @@ static void trimString(wchar_t*& beginPtr,wchar_t* endPtr);
 
 std::list<std::wstring_view> splitWildcardInput(wchar_t token, const std::wstring& wildcardMultiple) {
     std::list<std::wstring_view> wildcardList{};
-    wchar_t* wildcardPtr = static_cast<wchar_t*>(malloc(sizeof(wchar_t)*(wildcardMultiple.size()+1)));
+    wildcardPtr = static_cast<wchar_t*>(malloc(sizeof(wchar_t)*(wildcardMultiple.size()+1)));
     memset(wildcardPtr,0, sizeof(wchar_t)*(wildcardMultiple.size()+1));
 //    wchar_t* wildcardPtr= const_cast<wchar_t*>(wildcardMultiple.data());
     wildcardMultiple.copy(wildcardPtr, wildcardMultiple.size());
@@ -112,4 +104,12 @@ bool match(wchar_t const* needle, wchar_t const* haystack) {
         }
     }
     return *haystack == '\0';
+}
+
+FileSelector::FileSelector() {
+
+}
+
+FileSelector::~FileSelector() {
+
 }
