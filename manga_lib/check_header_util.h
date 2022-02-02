@@ -2,8 +2,8 @@
 // Created by overlord on 2022/2/1.
 //
 
-#ifndef FIX_33ZIP_CHECK_FILE_MAGIC_H
-#define FIX_33ZIP_CHECK_FILE_MAGIC_H
+#ifndef FIX_33ZIP_CHECK_HEADER_UTIL_H
+#define FIX_33ZIP_CHECK_HEADER_UTIL_H
 
 #include <cstddef>
 #include <list>
@@ -19,4 +19,4 @@ public:
 };
 
 
-#endif //FIX_33ZIP_CHECK_FILE_MAGIC_H
+#endif //FIX_33ZIP_CHECK_HEADER_UTIL_H

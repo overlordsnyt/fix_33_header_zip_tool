@@ -11,13 +11,13 @@ endif()
 
 add_subdirectory(manga_lib)
 
-add_executable(fix_33zip main.cpp)
+add_executable(workflow main_flow.cpp)
 
-target_link_libraries(fix_33zip PUBLIC
-        read_files
-        check_file_magic
+target_link_libraries(workflow PUBLIC
+        file_util
+        check_header_util
         )
-target_include_directories(fix_33zip PUBLIC
+target_include_directories(workflow PUBLIC
         ${PROJECT_SOURCE_DIR}/manga_lib
 )
 
