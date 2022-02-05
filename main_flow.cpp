@@ -6,6 +6,7 @@
 
 #include "file_util.h"
 #include "check_header_util.h"
+#include "binary_manipulation.h"
 
 int main(){
 
@@ -21,10 +22,13 @@ int main(){
                                                                                                  badHeaderPtr,
                                                                                                  sizeof zipBadHeader);
 
-    std::list<std::filesystem::directory_entry> filesCopied = FileSelector::copyFiles(filesBadHeader,
-                                                                                      LR"(D:\Manga\UID639803_Yami\fixed)",
-                                                                                      LR"(..\fix_output)", true);
-    std::filesystem::remove_all(LR"(D:\Manga\UID639803_Yami\fixed\..\fix_output)");
+//    std::list<std::filesystem::directory_entry> filesCopied = FileSelector::copyFiles(filesBadHeader,
+//                                                                                      LR"(D:\Manga\UID639803_Yami\fixed)",
+//                                                                                      LR"(..\fix_output)", true);
+//    std::filesystem::remove_all(LR"(D:\Manga\UID639803_Yami\fixed\..\fix_output)");
+
+    std::list<std::filesystem::directory_entry> fixedFiles = BinaryManipulation::fix33HeaderZip(filesBadHeader);
+
     return 0;
 }
 

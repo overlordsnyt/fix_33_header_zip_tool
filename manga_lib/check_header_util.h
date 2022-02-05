@@ -13,7 +13,8 @@ typedef std::list<std::filesystem::directory_entry> dir_entry_list;
 
 class FileHeader {
 public:
-    static const dir_entry_list& pickMagicNumberFile(dir_entry_list& dirEntryList, size_t offset, const std::byte*& assume, size_t assumeSize);
+    static dir_entry_list
+    pickMagicNumberFile(const dir_entry_list& dirEntryList, size_t offset, const std::byte*& assume, size_t assumeSize);
     static bool isMagicNumberFile(std::filesystem::directory_entry& dirEntry, size_t offset, const std::byte*& assume,
                            size_t assumeSize);
 };

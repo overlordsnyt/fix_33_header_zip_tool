@@ -6,13 +6,19 @@
 
 #include <fstream>
 
-const dir_entry_list&
-FileHeader::pickMagicNumberFile(dir_entry_list& dirEntryList, size_t offset,
+dir_entry_list
+FileHeader::pickMagicNumberFile(const dir_entry_list& dirEntryList, size_t offset,
                                 const std::byte*& assume, size_t assumeSize) {
-    dirEntryList.remove_if([&](std::filesystem::directory_entry entry){
+    /*dirEntryList.remove_if([&](std::filesystem::directory_entry entry){
         return !isMagicNumberFile(entry, offset, assume, assumeSize);
     });
-    return dirEntryList;
+    return dirEntryList;*/
+    dir_entry_list pickedFiles{};
+    for (auto entry: dirEntryList) {
+        if (isMagicNumberFile(entry,offset,assume,assumeSize))
+            pickedFiles.push_back(entry);
+    }
+    return pickedFiles;
 }
 
 bool FileHeader::isMagicNumberFile(std::filesystem::directory_entry& dirEntry, size_t offset, const std::byte*& assume,
