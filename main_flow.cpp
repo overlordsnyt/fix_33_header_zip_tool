@@ -8,24 +8,23 @@
 #include "check_header_util.h"
 #include "binary_manipulation.h"
 
+static const uint32_t ZIP_BAD_HEADER=0x03034b50;
 int main(){
 
     std::list<std::filesystem::directory_entry> filesQueriedByWildcard = FileSelector::listPathFiles(
             LR"(D:\Manga\UID639803_Yami)", true, FileSelector::FILE, L" (C98)*.zip | (C97)*.zip ");
 
     std::list<std::filesystem::directory_entry> filesPrepared = FileSelector::listPathFiles(
-            LR"(D:\Manga\UID639803_Yami\fixed)", true);
+            LR"(D:\Manga\UID639803_Yami)", true);
 
-    long zipBadHeader = 0x03034b50L;
-    const std::byte* badHeaderPtr = static_cast<std::byte*>(static_cast<void*>(&zipBadHeader));
+    const std::byte* badHeaderPtr = reinterpret_cast<const std::byte*>(&ZIP_BAD_HEADER);
     std::list<std::filesystem::directory_entry> filesBadHeader = FileHeader::pickMagicNumberFile(filesPrepared, 0,
                                                                                                  badHeaderPtr,
-                                                                                                 sizeof zipBadHeader);
+                                                                                                 sizeof ZIP_BAD_HEADER);
 
-//    std::list<std::filesystem::directory_entry> filesCopied = FileSelector::copyFiles(filesBadHeader,
-//                                                                                      LR"(D:\Manga\UID639803_Yami\fixed)",
-//                                                                                      LR"(..\fix_output)", true);
-//    std::filesystem::remove_all(LR"(D:\Manga\UID639803_Yami\fixed\..\fix_output)");
+    std::list<std::filesystem::directory_entry> filesCopied = FileSelector::copyFiles(filesBadHeader,
+                                                                                      LR"(D:\Manga\UID639803_Yami)",
+                                                                                      LR"(..\Yami_backup)", true);
 
     std::list<std::filesystem::directory_entry> fixedFiles = BinaryManipulation::fix33HeaderZip(filesBadHeader);
 

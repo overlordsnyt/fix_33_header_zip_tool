@@ -20,3 +20,7 @@ target_include_directories(workflow PUBLIC
 add_executable(test
         test.cpp
         )
+
+if (MSVC)
+    target_link_options(workflow PRIVATE /STACK:5000000)
+endif ()

@@ -8,6 +8,8 @@
 #include <list>
 #include <filesystem>
 
+#define COPY_MEMORY 4*1024*1024
+
 typedef std::list<std::filesystem::directory_entry> dir_entry_list;
 
 class BinaryManipulation {
