@@ -60,7 +60,7 @@ dir_entry_list FileSelector::listPathFiles(const std::wstring_view& path, const 
     return entryList;
 }
 
-const dir_entry_list&
+const dir_entry_list
 FileSelector::copyFiles(const dir_entry_list& fileList, const std::filesystem::path& commonParentDir,
                         const std::filesystem::path& dstPath, bool prefixFolderFlag) {
     if (!commonParentDir.empty() && !commonParentDir.is_absolute())
@@ -117,13 +117,13 @@ FileSelector::copyFiles(const dir_entry_list& fileList, const std::filesystem::p
     }
     //copy file
     dir_entry_list copiedFiles{};
-    fs::copy_options copyingOptions{fs::copy_options::update_existing};
+    const fs::copy_options copyingOptions{fs::copy_options::update_existing};
     for (const auto& entryPair: copyingFiles) {
         bool copiedFlag = fs::copy_file(entryPair.first, entryPair.second, copyingOptions);
         if (copiedFlag)
             copiedFiles.push_back(entryPair.second);
     }
-    return fileList;
+    return copiedFiles;
 }
 
 static void trimString(wchar_t*& beginPtr,wchar_t* endPtr);

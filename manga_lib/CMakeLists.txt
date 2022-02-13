@@ -12,6 +12,6 @@ add_library(check_header_util STATIC
         check_header_util.cpp check_header_util.h
 )
 
-add_library(binary_manipulation
+add_library(binary_manipulation STATIC
         binary_manipulation.cpp binary_manipulation.h
         )

@@ -21,7 +21,7 @@ public:
 
     static dir_entry_list listPathFiles(const std::wstring_view& path, bool recurFlag = false,
                                                                      short selType = FILE, const std::wstring& wildcard = L"");
-    static const dir_entry_list&
+    static const dir_entry_list
     copyFiles(const dir_entry_list& fileList, const std::filesystem::path& commonParentDir,
               const std::filesystem::path& dstPath, bool prefixFolderFlag = false);
 };

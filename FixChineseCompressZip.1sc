@@ -1,0 +1,61 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Script File
+//
+//      File: FixChineseCompressZip.1sc
+//   Authors: overlord_snyt
+//   Version: 0.0.3
+//   Purpose: To fix manga zip file used to be wrong compressed
+//            so that can't be open and view by NeeView.
+//  Category: Binary
+//   History: 
+//    0.0.3  2022-1-31 overlord: save other name file.
+//    0.0.2  2022-1-30 overlord: add complete hint.
+//    0.0.1  2022-1-30 overlord: first release.
+//------------------------------------------------
+
+const uint FIXED_SIGNATURE=0x03034B50;
+const uint END_CENTRAL_DIR_SIGNATURE=0x06054B50;
+const uint CENTRAL_DIR_SIGNATURE=0x02014B50;
+
+const uint headerSignature=ReadUInt(0);
+
+int needFixed=headerSignature==FIXED_SIGNATURE;
+if(!needFixed){
+    MessageBox(idOk,"fix Chinese zip","Header magic number is 0x%0.8X no need to fix.",headerSignature);
+    return -1;
+}
+
+string tempstr;
+SPrintf(tempstr,"0x%0.8X",END_CENTRAL_DIR_SIGNATURE);
+tempstr+=",ui32";
+const int64 endCentralDirSigPosition=FindFirst(tempstr);
+const int64 centralDirOffsetPos=endCentralDirSigPosition+16;
+
+SPrintf(tempstr,"0x%0.8X",CENTRAL_DIR_SIGNATURE);
+tempstr+=",ui32";
+const TFindResults centralDirEntries=FindAll(tempstr,true,false,0,0.0,1,ReadUInt(centralDirOffsetPos));
+const int entryCount=centralDirEntries.count;
+const uint entryOffset[entryCount];
+
+
+int i;
+for(i=0;i<entryCount;++i){
+    entryOffset[i]=centralDirEntries.start[i]+42;
+}
+
+HexOperation(HEXOP_SUBTRACT,centralDirOffsetPos,4,(int)4);
+for(i=0;i<entryCount;++i){
+    HexOperation(HEXOP_SUBTRACT,entryOffset[i],4,(int)4);
+}
+DeleteBytes(0,4);
+
+
+const wstring path=FileNameGetPathW(GetFileNameW());
+const wstring baseName=FileNameGetBaseW(GetFileNameW(),false);
+const wstring fileExt=FileNameGetExtensionW(GetFileNameW());
+const wstring fixedSaveFile=path+baseName+L".fixzip"+fileExt;
+
+Printf("Saving... %s",fixedSaveFile);
+FileSave(fixedSaveFile);
+
+MessageBox(idOk,"fix Chinese zip","Zip file '%s' was fixed.",GetFileNameW());

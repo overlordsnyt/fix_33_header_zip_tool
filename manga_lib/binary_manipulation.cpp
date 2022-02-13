@@ -29,6 +29,7 @@ searchForwardAll4BytesPositionFromCurrentInPos(std::istream& searchFS, const siz
 static bool modify(std::fstream& fixingFS, const std::streampos& pos, const int& x);
 static bool deleteFileData(std::fstream& cutMiddleFS, const uint32_t& pos, const size_t& count, const std::streampos& endpos);
 
+//ZIP define: https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
 bool BinaryManipulation::fix33HeaderZip(const std::filesystem::directory_entry& badHeaderFile) {
     using namespace std;
     streampos fileSize{0};
